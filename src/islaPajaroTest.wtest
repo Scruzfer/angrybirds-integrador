@@ -1,0 +1,123 @@
+import pajaros.*
+import islaPajaro.*
+import paredes.*
+import cerditos.*
+import islaCerdito.*
+
+
+describe "test islaPajaro"{
+	
+	const comuncito = new PajaroComun(5)
+	const redcito = new Red(6)
+	const bombcito = new Bomb(500)
+	const chuckcito = new Chuck(2)
+	const listaDePajaros = [comuncito,redcito,bombcito,chuckcito]
+	
+	const paredVidrio = new ParedDeVidrio(2)
+	const paredMadera = new ParedDeMadera(3)
+	const paredPiedra = new ParedDePiedra(2)
+	
+	const cerditoObrero = new CerditoObrero()
+	const cerditoCasco = new CerditoConCasco(20)
+	const cerditoEscudo = new CerditoConEscudo(25,2)
+	
+	const listaDeObstaculos = [paredVidrio,cerditoObrero, paredMadera, cerditoCasco, paredPiedra, cerditoEscudo]
+	
+	const unaIsla = new IslaPajaro(listaDePajaros)
+	const otraIsla = new IslaCerdito(listaDeObstaculos)
+
+	
+	test "testObtenerFuerzaDeRed"{
+		var fuerza = unaIsla.obtenerFuerzaDe(redcito)
+		assert.equals(60,fuerza)
+	}
+	
+	test "testObtenerFuerzaDeBomb"{
+		var fuerza = unaIsla.obtenerFuerzaDe(bombcito)
+		assert.equals(5000,fuerza)
+	}
+	
+	test "testObtenerFuerzaDeChuck"{
+		var fuerza = unaIsla.obtenerFuerzaDe(chuckcito)
+		assert.equals(160,fuerza)
+	}
+	
+	test "testObtenerFuerzaDePajaroComun"{
+		var fuerza = unaIsla.obtenerFuerzaDe(comuncito)
+		assert.equals(50,fuerza)
+	}
+	
+	test "testHacerEnojarAUnPajaroCualquiera"{
+		unaIsla.hacerEnojarA(redcito)
+		assert.equals(12,redcito.getIra())
+	}
+	
+	test "testPajarosMasFuertes"{
+		var pajarosFuertes = unaIsla.pajarosMasFuertes()
+		assert.equals([redcito,bombcito,chuckcito],pajarosFuertes)
+	}
+	
+	test "testFuerzaDelaIsla"{
+		var fuerzaTotal = unaIsla.fuerzaDeLaIsla()
+		assert.equals(5270,fuerzaTotal)
+	}
+	
+	test "testGetIra"{
+		assert.equals(6,redcito.getIra())
+	}
+	
+	test "testTranquilizarPajaros" {
+		unaIsla.tranquilizarPajaros()
+		assert.equals(1,redcito.getIra())
+	}
+	
+	test "testTranquilizarPajaros-ChuckNoTranquilizado" {
+		unaIsla.tranquilizarPajaros()
+		assert.equals(2,chuckcito.getIra())
+	}
+	
+	test "testInvasionDeCerditos-IraDuplicadaEnRed"{
+		unaIsla.invasionDeCerditos(400)
+		assert.equals(96, redcito.getIra())
+	}
+	
+	test "testInvasionDeCerditos-CantidadEnojosAumentadoEnRed"{
+		unaIsla.enojarPajaros()
+		assert.equals(7, redcito.getCantidadEnojos())
+	}
+	
+	test "testResistenciaParedVidrio"{
+		assert.equals(20,paredVidrio.getResistencia())
+	}
+	
+	test "testPajaroPuedeDerribarUnObstaculo"{
+		bombcito.atacarObstaculo(paredVidrio)
+		assert.that(paredVidrio.getDerribado())
+	}
+	
+	test "testCantidadDeObstaculosDerribados_CERO"{
+		var cantidad = otraIsla.cantidadDeObstaculosDerribados()
+		assert.equals(0,cantidad)
+	}
+	
+	test "testCantidadDeObstaculosDerribados_UNO"{
+		cerditoObrero.esImpactado(bombcito)
+		var cantidad = otraIsla.cantidadDeObstaculosDerribados()
+		assert.equals(1,cantidad)
+	}
+	
+	test "testSaberSiSeRecuperaronLosHuevos"{
+		assert.notThat(otraIsla.seRecuperaronLosHuevos())
+	}
+	
+	test "testFiestaSorpresa"{
+		var homenajeados = [redcito,bombcito]
+		unaIsla.fiestaSorpresa(homenajeados)
+		assert.equals(1000,bombcito.getIra())
+	}
+	
+	test "testHacerQueIslaPajaroAtaqueIslaCerdito"{
+		unaIsla.atacarIslaCerdito(otraIsla)
+		assert.that(otraIsla.getListaDeObstaculos().first().getDerribado())
+	}	
+}
